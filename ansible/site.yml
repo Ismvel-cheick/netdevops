@@ -23,4 +23,5 @@
     - role: nftables
     - role: dnsmasq
     - role: nginx
+    - role: monitoring
     - role: stack

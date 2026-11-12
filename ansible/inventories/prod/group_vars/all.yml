@@ -5,3 +5,5 @@ name_prefix: ""             # conteneurs : router-fw, web-dmz, dns-lan...
 net_prefix: "172.20"        # DMZ = 172.20.1.0/24, LAN = 172.20.2.0/24, MGMT = 172.20.3.0/24
 http_port: 8080
 https_port: 8443
+prometheus_port: 9090
+grafana_port: 3000

@@ -1,0 +1,13 @@
+---
+# Prometheus relit sa configuration sur SIGHUP (sans coupure)
+- name: Recharger Prometheus
+  ansible.builtin.command:
+    argv: [docker, kill, --signal=HUP, "{{ name_prefix }}prometheus"]
+  changed_when: true
+  failed_when: false
+
+- name: Redémarrer Blackbox
+  ansible.builtin.command:
+    argv: [docker, restart, "{{ name_prefix }}blackbox"]
+  changed_when: true
+  failed_when: false

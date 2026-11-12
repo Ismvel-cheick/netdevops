@@ -1,0 +1,59 @@
+# {{ ansible_managed }}
+# Prometheus — environnement : {{ env_name }}
+# Prometheus, Grafana et les exporters partagent l'adresse {{ net_prefix }}.3.10 (conteneur "monitoring") :
+# les exporters locaux sont donc joignables sur localhost.
+global:
+  scrape_interval: {{ prometheus_scrape_interval }}
+  evaluation_interval: {{ prometheus_scrape_interval }}
+  external_labels:
+    environnement: {{ env_name }}
+
+scrape_configs:
+
+  - job_name: prometheus
+    static_configs:
+      - targets: ["localhost:9090"]
+
+  # Hôte Docker (CPU, mémoire, disque)
+  - job_name: docker-host
+    static_configs:
+      - targets: ["localhost:9100"]
+        labels: { zone: hote }
+
+  # Routeur / pare-feu : trafic par interface = trafic par zone
+  - job_name: router-fw
+    static_configs:
+      - targets: ["{{ net_prefix }}.3.1:9100"]
+        labels: { zone: coeur }
+
+  # Serveur web DMZ (connexions, requêtes) via nginx-exporter
+  - job_name: nginx
+    static_configs:
+      - targets: ["localhost:9113"]
+        labels: { zone: dmz }
+
+  # Sonde HTTPS sur le site de la DMZ
+  - job_name: probe-web
+    metrics_path: /probe
+    params:
+      module: [https_insecure]
+    static_configs:
+      - targets: ["https://{{ net_prefix }}.1.10"]
+        labels: { zone: dmz, service: web }
+    relabel_configs: &blackbox_relabel
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: localhost:9115
+
+  # Sonde DNS sur le serveur du LAN (résolution de www.pme.local)
+  - job_name: probe-dns
+    metrics_path: /probe
+    params:
+      module: [dns_pme]
+    static_configs:
+      - targets: ["{{ net_prefix }}.2.10:53"]
+        labels: { zone: lan, service: dns }
+    relabel_configs: *blackbox_relabel

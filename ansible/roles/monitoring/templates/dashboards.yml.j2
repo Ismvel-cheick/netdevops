@@ -1,0 +1,10 @@
+# {{ ansible_managed }}
+apiVersion: 1
+providers:
+  - name: NetDevOps
+    folder: NetDevOps
+    type: file
+    disableDeletion: true
+    allowUiUpdates: true
+    options:
+      path: /var/lib/grafana/dashboards

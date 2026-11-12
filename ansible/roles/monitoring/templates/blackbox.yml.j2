@@ -1,0 +1,26 @@
+# {{ ansible_managed }}
+# Blackbox exporter — sondes actives (environnement : {{ env_name }})
+modules:
+
+  # HTTPS : certificat auto-signé accepté, on vérifie que le site répond en 2xx
+  https_insecure:
+    prober: http
+    timeout: 5s
+    http:
+      method: GET
+      valid_status_codes: [200]
+      tls_config:
+        insecure_skip_verify: true
+
+  # DNS : le serveur du LAN doit répondre à www.pme.local par un enregistrement A
+  dns_pme:
+    prober: dns
+    timeout: 5s
+    dns:
+      transport_protocol: udp
+      query_name: www.pme.local
+      query_type: A
+      valid_rcodes: [NOERROR]
+      validate_answer_rrs:
+        fail_if_not_matches_regexp:
+          - ".*{{ net_prefix }}.1.10.*"

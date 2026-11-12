@@ -1,0 +1,13 @@
+---
+# Rôle monitoring — Prometheus, Grafana, exporters (réseau MGMT)
+prometheus_image: prom/prometheus:v3.5.0
+# 11.6.0 plante (code 139) sur le noyau Linux 7.0 d'Ubuntu 26.04 : version 12.0.0 validée
+grafana_image: grafana/grafana:12.0.0
+node_exporter_image: prom/node-exporter:v1.9.1
+nginx_exporter_image: nginx/nginx-prometheus-exporter:1.4.0
+blackbox_image: prom/blackbox-exporter:v0.25.0
+
+prometheus_scrape_interval: 15s
+prometheus_retention: 7d
+grafana_admin_user: admin
+# grafana_admin_password vient d'Ansible Vault (group_vars/all/vault.yml)

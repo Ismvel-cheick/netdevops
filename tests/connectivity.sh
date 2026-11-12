@@ -10,9 +10,9 @@ set -u
 ENV_NAME="${1:-prod}"
 
 if [ "$ENV_NAME" = "test" ]; then
-  P="test-"; NET="172.30"; HTTPS_PORT=9443
+  P="test-"; NET="172.30"; HTTPS_PORT=9443; PROM_PORT=19090; GRAFANA_PORT=13000
 else
-  P="";      NET="172.20"; HTTPS_PORT=8443
+  P="";      NET="172.20"; HTTPS_PORT=8443; PROM_PORT=9090;  GRAFANA_PORT=3000
 fi
 WEB="$NET.1.10"; DNS="$NET.2.10"; CLIENT1="$NET.2.100"
 
@@ -61,6 +61,23 @@ docker exec "${P}client1" nmap -Pn -p 22,53,80,443,8080 "$WEB" | grep -E '^[0-9]
 echo "== 6. Règles nftables actives"
 doit_reussir "La politique forward du pare-feu est 'drop'" \
   sh -c "docker exec ${P}router-fw nft list chain inet filter forward | grep -q 'policy drop'"
+
+echo "== 7. Supervision (Prometheus / Grafana)"
+# Prometheus a besoin de quelques secondes pour faire son premier relevé
+cibles_toutes_up() {
+  curl -s --max-time 5 "http://localhost:$PROM_PORT/api/v1/query?query=up" \
+    | jq -e '(.data.result | length) >= 4 and all(.data.result[]; .value[1] == "1")'
+}
+for _ in $(seq 1 12); do cibles_toutes_up >/dev/null 2>&1 && break; sleep 5; done
+doit_reussir "Prometheus : toutes les cibles sont UP" cibles_toutes_up
+doit_reussir "Sondes Blackbox HTTPS + DNS en succès" \
+  sh -c "curl -s 'http://localhost:$PROM_PORT/api/v1/query?query=min(probe_success)' | jq -e '.data.result[0].value[1] == \"1\"'"
+# Au premier démarrage, Grafana initialise sa base (jusqu'à ~1 min)
+grafana_ok() { curl -s --max-time 5 "http://localhost:$GRAFANA_PORT/api/health" | jq -e '.database == "ok"'; }
+for _ in $(seq 1 12); do grafana_ok >/dev/null 2>&1 && break; sleep 5; done
+doit_reussir "Grafana répond (api/health)" grafana_ok
+doit_echouer "LAN -> MGMT : client1 ne joint pas Prometheus" \
+  docker exec "${P}client1" nc -z -w 3 "$NET.3.10" 9090
 
 echo
 echo "Résultat ($ENV_NAME) : $PASS OK, $FAIL échec(s)"

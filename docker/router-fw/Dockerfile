@@ -1,7 +1,8 @@
 # router-fw : routeur inter-zones + pare-feu nftables
 FROM alpine:3.20
 
-RUN apk add --no-cache nftables iproute2 iputils curl bind-tools tcpdump
+# prometheus-node-exporter : expose les compteurs réseau du routeur (trafic par zone)
+RUN apk add --no-cache nftables iproute2 iputils curl bind-tools tcpdump prometheus-node-exporter
 
 COPY nftables.conf /etc/nftables.conf
 COPY entrypoint.sh /entrypoint.sh

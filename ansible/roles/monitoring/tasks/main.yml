@@ -1,0 +1,51 @@
+---
+- name: Créer l'arborescence de la supervision
+  ansible.builtin.file:
+    path: "{{ deploy_dir }}/monitoring/{{ item }}"
+    state: directory
+    mode: "0755"
+  loop:
+    - prometheus
+    - blackbox
+    - grafana/provisioning/datasources
+    - grafana/provisioning/dashboards
+    - grafana/dashboards
+
+- name: Générer la configuration Prometheus (cibles à superviser)
+  ansible.builtin.template:
+    src: prometheus.yml.j2
+    dest: "{{ deploy_dir }}/monitoring/prometheus/prometheus.yml"
+    mode: "0644"
+  notify: Recharger Prometheus
+
+- name: Générer la configuration Blackbox (sondes HTTP et DNS)
+  ansible.builtin.template:
+    src: blackbox.yml.j2
+    dest: "{{ deploy_dir }}/monitoring/blackbox/blackbox.yml"
+    mode: "0644"
+  notify: Redémarrer Blackbox
+
+- name: Déclarer la source de données Prometheus dans Grafana
+  ansible.builtin.template:
+    src: datasource.yml.j2
+    dest: "{{ deploy_dir }}/monitoring/grafana/provisioning/datasources/prometheus.yml"
+    mode: "0644"
+
+- name: Déclarer le dossier des dashboards dans Grafana
+  ansible.builtin.template:
+    src: dashboards.yml.j2
+    dest: "{{ deploy_dir }}/monitoring/grafana/provisioning/dashboards/netdevops.yml"
+    mode: "0644"
+
+- name: Copier les dashboards Grafana versionnés dans Git
+  ansible.builtin.copy:
+    src: "{{ repo_dir }}/monitoring/grafana/dashboards/"
+    dest: "{{ deploy_dir }}/monitoring/grafana/dashboards/"
+    mode: "0644"
+
+- name: Écrire le mot de passe admin Grafana (issu d'Ansible Vault)
+  ansible.builtin.copy:
+    content: "{{ grafana_admin_password }}"
+    dest: "{{ deploy_dir }}/monitoring/grafana/admin_password"
+    mode: "0644"
+  no_log: true

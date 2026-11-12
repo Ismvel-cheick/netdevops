@@ -1,0 +1,5 @@
+---
+# Variables communes à tous les environnements.
+# Les secrets ne sont JAMAIS écrits ici en clair : ils sont dans vault.yml,
+# chiffré avec Ansible Vault, et référencés par des variables "vault_*".
+grafana_admin_password: "{{ vault_grafana_admin_password }}"

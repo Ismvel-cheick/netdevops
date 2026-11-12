@@ -14,6 +14,10 @@
     wait: true
     wait_timeout: 120
   register: stack_result
+  # Réseau instable (téléchargement des images) : jusqu'à 3 nouvelles tentatives
+  retries: 3
+  delay: 15
+  until: stack_result is succeeded
 
 - name: Afficher l'état des conteneurs
   ansible.builtin.debug:
