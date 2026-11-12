@@ -1,0 +1,33 @@
+### Environnement : prod (réseaux 172.20.x.0/24)
+== 1. Conteneurs démarrés
+  [OK]    router-fw est en cours d'exécution
+  [OK]    web-dmz est en cours d'exécution
+  [OK]    dns-lan est en cours d'exécution
+  [OK]    client1 est en cours d'exécution
+  [OK]    client2 est en cours d'exécution
+== 2. DNS (dig)
+  [OK]    client1 résout www.pme.local -> 172.20.1.10
+  [OK]    client1 résout un nom Internet (google.com)
+== 3. Web (curl)
+  [OK]    client1 -> web-dmz en HTTPS
+  [OK]    HTTP redirige vers HTTPS (301)
+  [OK]    Accès depuis l'hôte via le DNAT du pare-feu (https://localhost:8443)
+== 4. Filtrage nftables (flux interdits)
+  [OK]    DMZ -> LAN : web-dmz ne joint pas dns-lan en DNS
+  [OK]    DMZ -> LAN : web-dmz ne ping pas client1
+  [OK]    LAN -> web-dmz sur un port non autorisé (22)
+== 5. Scan nmap de la DMZ depuis le LAN
+22/tcp   filtered ssh
+53/tcp   filtered domain
+80/tcp   open     http
+443/tcp  open     https
+8080/tcp filtered http-proxy
+== 6. Règles nftables actives
+  [OK]    La politique forward du pare-feu est 'drop'
+== 7. Supervision (Prometheus / Grafana)
+  [OK]    Prometheus : toutes les cibles sont UP
+  [OK]    Sondes Blackbox HTTPS + DNS en succès
+  [OK]    Grafana répond (api/health)
+  [OK]    LAN -> MGMT : client1 ne joint pas Prometheus
+
+Résultat (prod) : 18 OK, 0 échec(s)

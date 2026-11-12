@@ -46,7 +46,10 @@ pipeline {
                     sh 'yamllint -f parsable . > "$REPORTS/yamllint.txt" 2>&1; rc=$?; cat "$REPORTS/yamllint.txt"; exit $rc'
                 }
                 catchError(buildResult: 'UNSTABLE', stageResult: 'UNSTABLE') {
-                    sh 'cd ansible && ansible-lint --offline site.yml > "../$REPORTS/ansible-lint.txt" 2>&1; rc=$?; cat "../$REPORTS/ansible-lint.txt"; exit $rc'
+                    // ansible-lint vérifie la syntaxe du playbook : il doit pouvoir lire le coffre Vault
+                    withCredentials([string(credentialsId: 'ansible-vault-pass', variable: 'VAULT_PASS')]) {
+                        sh 'cd ansible && ansible-lint --offline site.yml > "../$REPORTS/ansible-lint.txt" 2>&1; rc=$?; cat "../$REPORTS/ansible-lint.txt"; exit $rc'
+                    }
                 }
                 catchError(buildResult: 'UNSTABLE', stageResult: 'UNSTABLE') {
                     sh 'pylint scripts/*.py > "$REPORTS/pylint.txt" 2>&1; rc=$?; cat "$REPORTS/pylint.txt"; exit $rc'
@@ -56,13 +59,18 @@ pipeline {
 
         stage('3. SonarQube Scan') {
             steps {
-                withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
-                    sh '''
-                        docker run --rm --network host \
-                          -e SONAR_HOST_URL="$SONAR_HOST_URL" -e SONAR_TOKEN="$SONAR_TOKEN" \
-                          -v "$WORKSPACE:/usr/src" \
-                          sonarsource/sonar-scanner-cli:latest
-                    '''
+                // Si le serveur SonarQube est indisponible, le build devient instable
+                // mais le déploiement continue (l'analyse est un contrôle qualité)
+                catchError(buildResult: 'UNSTABLE', stageResult: 'UNSTABLE') {
+                    withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
+                        sh '''
+                            docker run --rm --network host \
+                              -e SONAR_HOST_URL="$SONAR_HOST_URL" -e SONAR_TOKEN="$SONAR_TOKEN" \
+                              -e SONAR_SCANNER_OPTS="-Xmx512m" \
+                              -v "$WORKSPACE:/usr/src" \
+                              sonarsource/sonar-scanner-cli:latest
+                        '''
+                    }
                 }
             }
         }

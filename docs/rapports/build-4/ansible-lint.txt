@@ -1,0 +1,24 @@
+WARNING  Listing 1 violation(s) that are fatal
+Read documentation for instructions on how to ignore specific rule violations.
+
+# Rule Violation Summary
+
+  1 internal-error profile:min tags:core
+
+Failed: 1 failure(s), 0 warning(s) on 1 files.
+internal-error: Unexpected error code 1 from execution of: ansible-playbook --syntax-check -vv site.yml (warning)
+site.yml:1 ansible-playbook [core 2.19.11]
+  config file = /var/jenkins_home/workspace/netdevops/ansible/ansible.cfg
+  configured module search path = ['/var/jenkins_home/workspace/netdevops/ansible/.ansible/modules', '/var/jenkins_home/.ansible/plugins/modules', '/usr/share/ansible/plugins/modules']
+  ansible python module location = /usr/lib/python3/dist-packages/ansible
+  ansible collection location = /var/jenkins_home/workspace/netdevops/ansible/.ansible/collections:/var/jenkins_home/.ansible/collections:/usr/share/ansible/collections:/usr/lib/python3/dist-packages:/usr/lib/python3.13/dist-packages:/usr/local/lib/python3.13/dist-packages
+  executable location = /usr/bin/ansible-playbook
+  python version = 3.13.5 (main, Aug 10 2026, 12:06:59) [GCC 14.2.0] (/usr/bin/python3)
+  jinja version = 3.1.6
+  pyyaml version = 6.0.2 (with libyaml v0.2.5)
+Using /var/jenkins_home/workspace/netdevops/ansible/ansible.cfg as config file
+VAULT_PASS non défini
+[WARNING]: Error in vault password file loading (default): Vault password script /var/jenkins_home/workspace/netdevops/ansible/vault-pass-from-env.sh returned non-zero (1): None
+[ERROR]: Vault password script /var/jenkins_home/workspace/netdevops/ansible/vault-pass-from-env.sh returned non-zero (1): None
+[/]
+

@@ -1,7 +1,7 @@
 # dns-lan : serveur DNS interne du LAN (dnsmasq)
 FROM alpine:3.20
 
-RUN apk add --no-cache dnsmasq iproute2 bind-tools
+RUN apk upgrade --no-cache && apk add --no-cache dnsmasq iproute2 bind-tools
 
 COPY dnsmasq.conf /etc/dnsmasq.conf
 

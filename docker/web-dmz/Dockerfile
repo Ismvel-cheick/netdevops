@@ -1,7 +1,10 @@
 # web-dmz : serveur Nginx exposé (HTTP -> HTTPS)
-FROM nginx:1.27-alpine
+# 1.27 (Alpine 3.21.3) : 1 CVE CRITIQUE + 51 HIGH relevées par Trivy -> image plus récente
+FROM nginx:1.28-alpine
 
-RUN apk add --no-cache openssl iproute2 \
+# apk upgrade : applique les correctifs de sécurité des paquets de l'image de base
+RUN apk upgrade --no-cache \
+ && apk add --no-cache openssl iproute2 \
  && mkdir -p /etc/nginx/ssl \
  && openssl req -x509 -nodes -newkey rsa:2048 -days 365 \
       -keyout /etc/nginx/ssl/server.key -out /etc/nginx/ssl/server.crt \

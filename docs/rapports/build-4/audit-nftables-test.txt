@@ -1,0 +1,7 @@
+Audit nftables du conteneur test-router-fw
+  [OK] Politique 'drop' sur la chaîne input
+  [OK] Politique 'drop' sur la chaîne forward
+  [OK] Aucun 'accept' inconditionnel dans forward
+  [OK] Journalisation des paquets refusés (forward)
+  [OK] DNAT uniquement vers 172.30.1.10 (trouvé : ['172.30.1.10'])
+Résultat : 5 OK, 0 échec(s)
