@@ -68,7 +68,7 @@ Périmètre : infrastructure segmentée (DMZ / LAN / MGMT), chaîne CI/CD et out
 | 8 | SonarQube avec base embarquée H2 | Faible | Ouvert : PostgreSQL en production |
 | 9 | Jenkins et SonarQube en HTTP (sans TLS) | Moyenne | Ouvert : reverse proxy HTTPS devant les outils |
 | 10 | Le DNAT masque l'IP réelle des clients dans les journaux Nginx | Faible | Ouvert : en-tête `X-Forwarded-For` / proxy protocol |
-| 11 | Trivy (build #4) : web-dmz basée sur nginx 1.27 / Alpine 3.21.3 → 1 CVE CRITICAL (brotli) + 51 HIGH (curl, libexpat, libxml2, libpng, pcre2, musl…) ; autres images : 2 HIGH (musl) | Élevée | **Corrigé** : passage à nginx 1.28-alpine et `apk upgrade` dans tous les Dockerfiles, vérifié par un nouveau scan |
+| 11 | Trivy (build #4) : web-dmz basée sur nginx 1.27 / Alpine 3.21.3 → 1 CVE CRITICAL (brotli) + 51 HIGH (curl, libexpat, libxml2, libpng, pcre2, musl…) ; autres images : 2 HIGH (musl) | Élevée | **Corrigé** : nginx 1.28-alpine et `apk upgrade` dans tous les Dockerfiles. Build #5 : 0 CRITICAL, 5 HIGH résiduelles sur le paquet nginx de l'image officielle (−91 %) |
 | 12 | Remarques SonarQube (bugs, code smells, hotspots) | **[à compléter]** | **[à compléter]** : voir le projet `netdevops` sur SonarQube |
 
 ## 4. Résultats des contrôles automatisés [à compléter]
@@ -79,10 +79,18 @@ Périmètre : infrastructure segmentée (DMZ / LAN / MGMT), chaîne CI/CD et out
 
 | Image | Build #4 (avant) CRITICAL | Build #4 HIGH | Après correction CRITICAL | Après correction HIGH |
 |-------|---------------------------|---------------|---------------------------|-----------------------|
-| netdevops/router-fw | 0 | 2  | [à compléter] | [à compléter] |
-| netdevops/web-dmz   | 1 | 51 | [à compléter] | [à compléter] |
-| netdevops/dns-lan   | 0 | 2  | [à compléter] | [à compléter] |
-| netdevops/client    | 0 | 2  | [à compléter] | [à compléter] |
+| netdevops/router-fw | 0 | 2  | 0 | 0 |
+| netdevops/web-dmz   | 1 | 51 | 0 | 5 |
+| netdevops/dns-lan   | 0 | 2  | 0 | 0 |
+| netdevops/client    | 0 | 2  | 0 | 0 |
+| **Total**           | **1** | **57** | **0** | **5** (−91 %) |
+
+Les 5 HIGH résiduelles (build #5) concernent le paquet `nginx` lui-même (1.28.3-r1, corrigé en 1.28.3-r6),
+fourni par l'image officielle nginx : elles disparaîtront avec la prochaine publication de l'image
+par l'éditeur. Action : suivre l'image `nginx:stable-alpine` et relancer le pipeline.
+
+- **ansible-lint** (build #5) : 17 remarques `var-naming[no-role-prefix]` (style). Exception documentée
+  dans `.ansible-lint` : variables volontairement partagées entre les rôles `monitoring` et `stack`.
 
 - **SonarQube** : Quality Gate **Passed** (134 lignes analysées : Dockerfiles, Python, YAML).
 - **pylint** : `scripts/audit_nftables.py` noté **10,00 / 10**.

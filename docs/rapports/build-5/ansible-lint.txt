@@ -1,0 +1,59 @@
+WARNING  Listing 17 violation(s) that are fatal
+Read documentation for instructions on how to ignore specific rule violations.
+
+# Rule Violation Summary
+
+ 17 var-naming profile:basic tags:idiom
+
+Failed: 17 failure(s), 0 warning(s) on 15 files. Last profile that met the validation criteria was 'min'.
+var-naming[no-role-prefix]: Variables names from within roles should use dnsmasq_ as a prefix. (vars: dns_domain)
+roles/dnsmasq/defaults/main.yml:3:1
+
+var-naming[no-role-prefix]: Variables names from within roles should use dnsmasq_ as a prefix. (vars: dns_upstream_servers)
+roles/dnsmasq/defaults/main.yml:4:1
+
+var-naming[no-role-prefix]: Variables names from within roles should use dnsmasq_ as a prefix. (vars: dns_cache_size)
+roles/dnsmasq/defaults/main.yml:7:1
+
+var-naming[no-role-prefix]: Variables names from within roles should use dnsmasq_ as a prefix. (vars: dns_log_queries)
+roles/dnsmasq/defaults/main.yml:8:1
+
+var-naming[no-role-prefix]: Variables names from within roles should use dnsmasq_ as a prefix. (vars: dns_records)
+roles/dnsmasq/defaults/main.yml:11:1
+
+var-naming[no-role-prefix]: Variables names from within roles should use monitoring_ as a prefix. (vars: prometheus_image)
+roles/monitoring/defaults/main.yml:3:1
+
+var-naming[no-role-prefix]: Variables names from within roles should use monitoring_ as a prefix. (vars: grafana_image)
+roles/monitoring/defaults/main.yml:5:1
+
+var-naming[no-role-prefix]: Variables names from within roles should use monitoring_ as a prefix. (vars: node_exporter_image)
+roles/monitoring/defaults/main.yml:6:1
+
+var-naming[no-role-prefix]: Variables names from within roles should use monitoring_ as a prefix. (vars: nginx_exporter_image)
+roles/monitoring/defaults/main.yml:7:1
+
+var-naming[no-role-prefix]: Variables names from within roles should use monitoring_ as a prefix. (vars: blackbox_image)
+roles/monitoring/defaults/main.yml:8:1
+
+var-naming[no-role-prefix]: Variables names from within roles should use monitoring_ as a prefix. (vars: prometheus_scrape_interval)
+roles/monitoring/defaults/main.yml:10:1
+
+var-naming[no-role-prefix]: Variables names from within roles should use monitoring_ as a prefix. (vars: prometheus_retention)
+roles/monitoring/defaults/main.yml:11:1
+
+var-naming[no-role-prefix]: Variables names from within roles should use monitoring_ as a prefix. (vars: grafana_admin_user)
+roles/monitoring/defaults/main.yml:12:1
+
+var-naming[no-role-prefix]: Variables names from within roles should use nftables_ as a prefix. (vars: nft_web_ports)
+roles/nftables/defaults/main.yml:3:1
+
+var-naming[no-role-prefix]: Variables names from within roles should use nftables_ as a prefix. (vars: nft_lan_internet_ports)
+roles/nftables/defaults/main.yml:4:1
+
+var-naming[no-role-prefix]: Variables names from within roles should use nftables_ as a prefix. (vars: nft_log_drops)
+roles/nftables/defaults/main.yml:5:1
+
+var-naming[no-role-prefix]: Variables names from within roles should use stack_ as a prefix. (vars: image_tag)
+roles/stack/defaults/main.yml:3:1
+

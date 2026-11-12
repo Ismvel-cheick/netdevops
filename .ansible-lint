@@ -1,0 +1,12 @@
+---
+# Configuration ansible-lint du projet NetDevOps
+
+skip_list:
+  # Les variables des rôles monitoring (images, ports) sont volontairement partagées
+  # avec le rôle stack qui génère le docker-compose : un préfixe par rôle
+  # (monitoring_*, stack_*) casserait ce partage. Choix documenté dans le rapport.
+  - var-naming[no-role-prefix]
+
+exclude_paths:
+  - build/
+  - reports/
