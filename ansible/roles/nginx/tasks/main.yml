@@ -1,0 +1,13 @@
+---
+- name: Créer le dossier de configuration Nginx
+  ansible.builtin.file:
+    path: "{{ deploy_dir }}/web-dmz"
+    state: directory
+    mode: "0755"
+
+- name: Générer le virtual host Nginx (HTTP -> HTTPS, en-têtes de sécurité)
+  ansible.builtin.template:
+    src: default.conf.j2
+    dest: "{{ deploy_dir }}/web-dmz/default.conf"
+    mode: "0644"
+  notify: Recharger nginx

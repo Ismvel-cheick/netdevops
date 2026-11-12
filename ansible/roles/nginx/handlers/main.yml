@@ -1,0 +1,5 @@
+---
+- name: Recharger nginx
+  community.docker.docker_container_exec:
+    container: "{{ name_prefix }}web-dmz"
+    argv: [sh, -c, "nginx -t && nginx -s reload"]

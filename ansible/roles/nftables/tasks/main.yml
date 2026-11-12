@@ -1,0 +1,13 @@
+---
+- name: Créer le dossier de configuration du pare-feu
+  ansible.builtin.file:
+    path: "{{ deploy_dir }}/router-fw"
+    state: directory
+    mode: "0755"
+
+- name: Générer les règles nftables
+  ansible.builtin.template:
+    src: nftables.conf.j2
+    dest: "{{ deploy_dir }}/router-fw/nftables.conf"
+    mode: "0644"
+  notify: Recharger nftables

@@ -20,3 +20,6 @@ trivy-*.json
 *.swp
 .DS_Store
 Thumbs.db
+
+# Configurations générées par Ansible
+build/

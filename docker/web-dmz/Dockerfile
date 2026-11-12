@@ -13,5 +13,8 @@ COPY index.html /usr/share/nginx/html/index.html
 
 HEALTHCHECK --interval=30s --timeout=5s CMD wget -qO- http://127.0.0.1:8080/nginx_status >/dev/null || exit 1
 
-# La route par défaut passe par le pare-feu (172.20.1.1), puis Nginx démarre
-CMD ["sh", "-c", "ip route replace default via 172.20.1.1 && exec nginx -g 'daemon off;'"]
+# Passerelle = pare-feu (surchargée par Ansible selon l'environnement)
+ENV GATEWAY=172.20.1.1
+
+# La route par défaut passe par le pare-feu, puis Nginx démarre
+CMD ["sh", "-c", "ip route replace default via $GATEWAY && exec nginx -g 'daemon off;'"]

@@ -1,0 +1,17 @@
+---
+# Rôle dnsmasq — DNS interne du LAN
+dns_domain: pme.local
+dns_upstream_servers:
+  - 1.1.1.1
+  - 8.8.8.8
+dns_cache_size: 1000
+dns_log_queries: true
+
+# Enregistrements internes : nom -> fin d'adresse (préfixée par net_prefix)
+dns_records:
+  - { name: www, host: "1.10" }
+  - { name: fw, host: "2.1" }
+  - { name: dns, host: "2.10" }
+  - { name: monitoring, host: "3.10" }
+  - { name: client1, host: "2.100" }
+  - { name: client2, host: "2.101" }

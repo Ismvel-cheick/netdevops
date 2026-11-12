@@ -1,0 +1,5 @@
+---
+- name: Recharger nftables
+  community.docker.docker_container_exec:
+    container: "{{ name_prefix }}router-fw"
+    argv: [nft, -f, /etc/nft/nftables.conf]

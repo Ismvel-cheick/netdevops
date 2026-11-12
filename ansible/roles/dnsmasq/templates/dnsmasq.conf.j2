@@ -1,0 +1,33 @@
+# {{ ansible_managed }}
+# dnsmasq — DNS interne du LAN (environnement : {{ env_name }})
+
+# Ne pas lire /etc/resolv.conf : on choisit nous-mêmes les résolveurs amont
+no-resolv
+{% for server in dns_upstream_servers %}
+server={{ server }}
+{% endfor %}
+
+# Zone locale : jamais transmise à l'extérieur
+domain={{ dns_domain }}
+local=/{{ dns_domain }}/
+expand-hosts
+
+# Enregistrements internes
+{% for record in dns_records %}
+host-record={{ record.name }}.{{ dns_domain }},{{ net_prefix }}.{{ record.host }}
+{% endfor %}
+
+# Sécurité / performance
+# Ne transmet pas les noms sans domaine
+domain-needed
+# Ne transmet pas les requêtes inverses sur les plages privées
+bogus-priv
+# Protection contre le DNS rebinding
+stop-dns-rebind
+rebind-domain-ok=/{{ dns_domain }}/
+cache-size={{ dns_cache_size }}
+
+{% if dns_log_queries %}
+# Journalisation des requêtes (utile pour l'audit)
+log-queries
+{% endif %}

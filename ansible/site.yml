@@ -1,0 +1,26 @@
+---
+# =============================================================================
+# Playbook principal NetDevOps
+#   Test : ansible-playbook site.yml
+#   Prod : ansible-playbook -i inventories/prod/hosts.yml site.yml
+# Génère les configurations (nftables, dnsmasq, nginx) puis déploie la stack Docker.
+# =============================================================================
+- name: Déployer l'infrastructure réseau segmentée
+  hosts: all
+  gather_facts: false
+  vars:
+    repo_dir: "{{ playbook_dir | dirname }}"
+    deploy_dir: "{{ repo_dir }}/build/{{ env_name }}"
+
+  pre_tasks:
+    - name: Créer le dossier de déploiement de l'environnement {{ env_name }}
+      ansible.builtin.file:
+        path: "{{ deploy_dir }}"
+        state: directory
+        mode: "0755"
+
+  roles:
+    - role: nftables
+    - role: dnsmasq
+    - role: nginx
+    - role: stack

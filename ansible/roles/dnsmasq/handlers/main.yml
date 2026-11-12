@@ -1,0 +1,6 @@
+---
+# dnsmasq ne relit pas son fichier de configuration à chaud : on redémarre le conteneur
+- name: Redémarrer dnsmasq
+  ansible.builtin.command:
+    argv: [docker, restart, "{{ name_prefix }}dns-lan"]
+  changed_when: true

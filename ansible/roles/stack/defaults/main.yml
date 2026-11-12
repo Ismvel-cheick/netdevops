@@ -1,0 +1,6 @@
+---
+# Rôle stack — génération du docker-compose et déploiement des conteneurs
+image_tag: latest
+# 'always' : reconstruit les images à chaque déploiement (le cache Docker rend ça rapide)
+# et garantit que les conteneurs utilisent toujours la dernière version des Dockerfiles.
+stack_build: always

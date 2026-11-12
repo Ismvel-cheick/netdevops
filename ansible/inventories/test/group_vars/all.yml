@@ -1,0 +1,8 @@
+---
+# Variables de l'environnement de TEST
+# Plan d'adressage distinct de la prod (172.30.x) pour que les deux tournent en même temps
+env_name: test
+name_prefix: "test-"        # préfixe des conteneurs et réseaux : test-router-fw, test-dmz-net...
+net_prefix: "172.30"        # DMZ = 172.30.1.0/24, LAN = 172.30.2.0/24, MGMT = 172.30.3.0/24
+http_port: 9080
+https_port: 9443

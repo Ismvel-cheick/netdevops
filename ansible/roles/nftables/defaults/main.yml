@@ -1,0 +1,5 @@
+---
+# Rôle nftables — pare-feu du conteneur router-fw
+nft_web_ports: [80, 443]            # ports ouverts vers le serveur web de la DMZ
+nft_lan_internet_ports: [80, 443]   # ports autorisés du LAN vers Internet
+nft_log_drops: true                 # journaliser les paquets refusés

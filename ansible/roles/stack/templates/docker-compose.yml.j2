@@ -1,0 +1,115 @@
+# {{ ansible_managed }}
+# =============================================================================
+# NetDevOps — environnement : {{ env_name }}
+#   {{ name_prefix }}dmz-net  {{ net_prefix }}.1.0/24 : web-dmz
+#   {{ name_prefix }}lan-net  {{ net_prefix }}.2.0/24 : dns-lan, client1, client2 (internal)
+#   {{ name_prefix }}mgmt-net {{ net_prefix }}.3.0/24 : supervision
+# Les fichiers de configuration (nftables, dnsmasq, nginx) sont générés par Ansible
+# dans ce dossier et montés en lecture seule dans les conteneurs.
+# =============================================================================
+
+services:
+
+  router-fw:
+    build: {{ repo_dir }}/docker/router-fw
+    image: netdevops/router-fw:{{ image_tag }}
+    container_name: {{ name_prefix }}router-fw
+    hostname: router-fw
+    cap_add: [NET_ADMIN, NET_RAW]
+    sysctls:
+      net.ipv4.ip_forward: 1
+      net.ipv4.conf.all.rp_filter: 0
+    environment:
+      NFT_CONF: /etc/nft/nftables.conf
+    volumes:
+      - ./router-fw:/etc/nft:ro
+    ports:
+      - "{{ http_port }}:80"
+      - "{{ https_port }}:443"
+    networks:
+      dmz-net:
+        ipv4_address: {{ net_prefix }}.1.1
+        gw_priority: 100
+      lan-net:
+        ipv4_address: {{ net_prefix }}.2.1
+      mgmt-net:
+        ipv4_address: {{ net_prefix }}.3.1
+    restart: unless-stopped
+
+  web-dmz:
+    build: {{ repo_dir }}/docker/web-dmz
+    image: netdevops/web-dmz:{{ image_tag }}
+    container_name: {{ name_prefix }}web-dmz
+    hostname: web-dmz
+    cap_add: [NET_ADMIN]
+    environment:
+      GATEWAY: {{ net_prefix }}.1.1
+    volumes:
+      - ./web-dmz:/etc/nginx/conf.d:ro
+    networks:
+      dmz-net:
+        ipv4_address: {{ net_prefix }}.1.10
+    depends_on: [router-fw]
+    restart: unless-stopped
+
+  dns-lan:
+    build: {{ repo_dir }}/docker/dns-lan
+    image: netdevops/dns-lan:{{ image_tag }}
+    container_name: {{ name_prefix }}dns-lan
+    hostname: dns-lan
+    cap_add: [NET_ADMIN]
+    environment:
+      GATEWAY: {{ net_prefix }}.2.1
+      DNSMASQ_CONF: /etc/dnsmasq.d/dnsmasq.conf
+    volumes:
+      - ./dns-lan:/etc/dnsmasq.d:ro
+    networks:
+      lan-net:
+        ipv4_address: {{ net_prefix }}.2.10
+    depends_on: [router-fw]
+    restart: unless-stopped
+
+{% for client in [{'name': 'client1', 'ip': '2.100'}, {'name': 'client2', 'ip': '2.101'}] %}
+  {{ client.name }}:
+{% if loop.first %}
+    build: {{ repo_dir }}/docker/client
+{% else %}
+    pull_policy: never
+{% endif %}
+    image: netdevops/client:{{ image_tag }}
+    container_name: {{ name_prefix }}{{ client.name }}
+    hostname: {{ client.name }}
+    cap_add: [NET_ADMIN, NET_RAW]
+    environment:
+      GATEWAY: {{ net_prefix }}.2.1
+    dns: [{{ net_prefix }}.2.10]
+    networks:
+      lan-net:
+        ipv4_address: {{ net_prefix }}.{{ client.ip }}
+    depends_on: [router-fw, dns-lan{{ '' if loop.first else ', client1' }}]
+    restart: unless-stopped
+
+{% endfor %}
+networks:
+  dmz-net:
+    name: {{ name_prefix }}dmz-net
+    driver: bridge
+    ipam:
+      config:
+        - subnet: {{ net_prefix }}.1.0/24
+          gateway: {{ net_prefix }}.1.254
+  lan-net:
+    name: {{ name_prefix }}lan-net
+    driver: bridge
+    internal: true
+    ipam:
+      config:
+        - subnet: {{ net_prefix }}.2.0/24
+          gateway: {{ net_prefix }}.2.254
+  mgmt-net:
+    name: {{ name_prefix }}mgmt-net
+    driver: bridge
+    ipam:
+      config:
+        - subnet: {{ net_prefix }}.3.0/24
+          gateway: {{ net_prefix }}.3.254
