@@ -1,0 +1,22 @@
+# Secrets — ne JAMAIS committer
+.vault_pass
+*.vault_pass
+.env
+*.pem
+*.key
+!**/templates/*.key.j2
+
+# Artefacts générés
+reports/
+*.retry
+__pycache__/
+*.pyc
+.scannerwork/
+trivy-*.json
+
+# Éditeurs / OS
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db

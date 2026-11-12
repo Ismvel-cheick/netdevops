@@ -1,0 +1,4 @@
+# Forcer les fins de ligne Unix (le projet tourne sur Linux)
+* text=auto eol=lf
+*.png binary
+*.jpg binary
