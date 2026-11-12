@@ -1,0 +1,48 @@
+# =============================================================================
+# Outils DevOps : Jenkins (CI/CD) + SonarQube (analyse statique)
+# Lancement : cd jenkins && docker compose up -d --build
+# =============================================================================
+name: devops-tools
+
+services:
+
+  jenkins:
+    build: .
+    image: netdevops/jenkins:latest
+    container_name: jenkins
+    # Réseau de l'hôte : Jenkins joint localhost:9000 (SonarQube), localhost:9443 (tests)...
+    network_mode: host
+    # Le port 8080 de la VM est pris par le site prod : Jenkins écoute sur 8081
+    environment:
+      JENKINS_OPTS: --httpPort=8081
+      # Autorise le checkout du dépôt Git local monté dans /repo
+      JAVA_OPTS: -Dhudson.plugins.git.GitSCM.ALLOW_LOCAL_CHECKOUT=true
+    # Accès au démon Docker de l'hôte (groupe docker de l'hôte, voir .env)
+    group_add:
+      - "${DOCKER_GID}"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      # Même chemin dans le conteneur et sur l'hôte : les montages créés par
+      # docker compose depuis le workspace Jenkins pointent vers les bons fichiers
+      - /var/jenkins_home:/var/jenkins_home
+      # Dépôt Git du projet (source du pipeline), en lecture seule
+      - ${REPO_DIR}:/repo:ro
+    restart: unless-stopped
+
+  sonarqube:
+    image: sonarqube:community
+    container_name: sonarqube
+    ports:
+      - "9000:9000"
+    environment:
+      SONAR_ES_BOOTSTRAP_CHECKS_DISABLE: "true"
+    volumes:
+      - sonarqube-data:/opt/sonarqube/data
+      - sonarqube-extensions:/opt/sonarqube/extensions
+      - sonarqube-logs:/opt/sonarqube/logs
+    restart: unless-stopped
+
+volumes:
+  sonarqube-data:
+  sonarqube-extensions:
+  sonarqube-logs:

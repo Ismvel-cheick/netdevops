@@ -7,7 +7,7 @@
 !**/templates/*.key.j2
 
 # Artefacts générés
-reports/
+
 *.retry
 __pycache__/
 *.pyc
@@ -23,3 +23,6 @@ Thumbs.db
 
 # Configurations générées par Ansible
 build/
+
+# Rapports générés par le pipeline
+reports/
